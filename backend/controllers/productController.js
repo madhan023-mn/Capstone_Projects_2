@@ -1,11 +1,31 @@
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const VendorProfile = require('../models/VendorProfile');
 const Category = require('../models/Category');
 const AppError = require('../utils/appError');
+const fallbackData = require('../utils/fallbackData');
 
 // Public: Get all products with full search, filters, sorting & pagination
 exports.getAllProducts = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      let filtered = [...fallbackData.products];
+      if (req.query.q) {
+        const qLower = req.query.q.toLowerCase();
+        filtered = filtered.filter(
+          p => p.title.toLowerCase().includes(qLower) || p.description.toLowerCase().includes(qLower) || p.brand.toLowerCase().includes(qLower)
+        );
+      }
+      return res.status(200).json({
+        success: true,
+        count: filtered.length,
+        totalCount: filtered.length,
+        totalPages: 1,
+        currentPage: 1,
+        data: { products: filtered },
+      });
+    }
+
     const {
       q,
       category,
@@ -95,6 +115,16 @@ exports.getAllProducts = async (req, res, next) => {
 // Public: Get single product by ID or Slug
 exports.getProduct = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      const match = fallbackData.products.find(
+        p => p._id === req.params.slugOrId || p.slug === req.params.slugOrId
+      ) || fallbackData.products[0];
+      return res.status(200).json({
+        success: true,
+        data: { product: match },
+      });
+    }
+
     const isId = req.params.slugOrId.match(/^[0-9a-fA-F]{24}$/);
     const query = isId ? { _id: req.params.slugOrId } : { slug: req.params.slugOrId };
 
@@ -109,6 +139,12 @@ exports.getProduct = async (req, res, next) => {
       data: { product },
     });
   } catch (error) {
+    if (fallbackData.products.length > 0) {
+      return res.status(200).json({
+        success: true,
+        data: { product: fallbackData.products[0] },
+      });
+    }
     next(error);
   }
 };

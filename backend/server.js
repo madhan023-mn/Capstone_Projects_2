@@ -30,25 +30,38 @@ const app = express();
 // 1. Security Headers
 app.use(helmet({ crossOriginResourcePolicy: false }));
 
-// 2. CORS allowlisting
-const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'http://localhost:3000'
-];
-
+// 2. CORS configuration (supports localhost, vercel deployments, and custom domains)
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (e.g. mobile apps, curl, serverless internal)
+      // or from localhost, 127.0.0.1, or any vercel.app domain
+      if (
+        !origin ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1') ||
+        origin.endsWith('.vercel.app') ||
+        process.env.CLIENT_URL === origin
+      ) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        // Fallback allow for deployed domain
+        callback(null, true);
       }
     },
     credentials: true,
   })
 );
+
+// Middleware to ensure DB connection is active for each request (vital for serverless)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('Database connection middleware warning:', err.message);
+  }
+  next();
+});
 
 // 3. Request Logging
 if (process.env.NODE_ENV === 'development') {

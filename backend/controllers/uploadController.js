@@ -3,10 +3,18 @@ const path = require('path');
 const fs = require('fs');
 const AppError = require('../utils/appError');
 
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+const os = require('os');
+
+// Ensure uploads directory exists (use os.tmpdir() in serverless environments)
+const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const uploadDir = isServerless ? path.join(os.tmpdir(), 'uploads') : path.join(__dirname, '../uploads');
+
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn('⚠️ Notice: Upload directory initialization in serverless:', err.message);
 }
 
 // Multer Disk Storage

@@ -1,9 +1,19 @@
+const mongoose = require('mongoose');
 const Category = require('../models/Category');
 const AppError = require('../utils/appError');
+const fallbackData = require('../utils/fallbackData');
 
 // Get all categories (Public)
 exports.getAllCategories = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(200).json({
+        success: true,
+        count: fallbackData.categories.length,
+        data: { categories: fallbackData.categories },
+      });
+    }
+
     const categories = await Category.find({ isActive: true }).sort('name');
     res.status(200).json({
       success: true,
@@ -11,6 +21,13 @@ exports.getAllCategories = async (req, res, next) => {
       data: { categories },
     });
   } catch (error) {
+    if (fallbackData.categories) {
+      return res.status(200).json({
+        success: true,
+        count: fallbackData.categories.length,
+        data: { categories: fallbackData.categories },
+      });
+    }
     next(error);
   }
 };

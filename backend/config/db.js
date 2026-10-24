@@ -1,17 +1,44 @@
 const mongoose = require('mongoose');
 
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
 const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 5000,
-    });
-    console.log(`✅ MongoDB Connected successfully: ${conn.connection.host}`);
-    return conn;
-  } catch (error) {
-    console.error(`❌ MongoDB Connection Error: ${error.message}`);
-    // Non-fatal exit during early dev so user can inspect logs
-    process.exit(1);
+  if (cached.conn) {
+    return cached.conn;
   }
+
+  const mongoUri = process.env.MONGO_URI;
+  if (!mongoUri) {
+    console.warn('⚠️ MONGO_URI environment variable is missing.');
+    return null;
+  }
+
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 5000,
+    };
+
+    cached.promise = mongoose.connect(mongoUri, opts).then((mongooseInstance) => {
+      console.log(`✅ MongoDB Connected successfully: ${mongooseInstance.connection.host}`);
+      return mongooseInstance;
+    });
+  }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (error) {
+    cached.promise = null;
+    console.error(`❌ MongoDB Connection Error: ${error.message}`);
+    throw error;
+  }
+
+  return cached.conn;
 };
 
 module.exports = connectDB;
+
