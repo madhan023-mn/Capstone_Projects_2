@@ -200,6 +200,15 @@ exports.checkoutAndCreateOrder = async (req, res, next) => {
 // GET /api/v1/orders/my-orders
 exports.getMyOrders = async (req, res, next) => {
   try {
+    const mongoose = require('mongoose');
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(200).json({
+        success: true,
+        count: 0,
+        data: { orders: [] },
+      });
+    }
+
     const orders = await Order.find({ customer: req.user._id })
       .populate({
         path: 'vendorOrders',

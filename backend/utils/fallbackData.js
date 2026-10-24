@@ -1,4 +1,4 @@
-// Fallback in-memory catalog data for serverless preview when external database is configuring
+// In-memory mock/demo state for serverless preview when external database is disconnected or cold
 const categories = [
   {
     _id: '662000000000000000000001',
@@ -38,6 +38,60 @@ const categories = [
   },
 ];
 
+const users = [
+  {
+    _id: '662000000000000000000091',
+    id: '662000000000000000000091',
+    name: 'Marketplace Administrator',
+    email: 'admin@marketverse.com',
+    password: 'Admin@123456',
+    role: 'admin',
+    phone: '+91 9876543210',
+    status: 'active',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: '662000000000000000000092',
+    id: '662000000000000000000092',
+    name: 'Apex Tech Goods',
+    email: 'apex@vendor.com',
+    password: 'Vendor@123456',
+    role: 'vendor',
+    phone: '+91 9876543211',
+    status: 'active',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: '662000000000000000000093',
+    id: '662000000000000000000093',
+    name: 'John Doe',
+    email: 'john@example.com',
+    password: 'Customer@123456',
+    role: 'customer',
+    phone: '+91 9876543213',
+    status: 'active',
+    createdAt: new Date().toISOString(),
+  },
+];
+
+const vendorProfiles = [
+  {
+    _id: '662000000000000000000081',
+    user: users[1],
+    storeName: 'Apex Electronics',
+    storeEmail: 'contact@apexelectronics.com',
+    storePhone: '+91 9876543211',
+    description: 'Authorized retailer for premier tech, audio equipment, laptops and accessories.',
+    logo: 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=300&q=80',
+    banner: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+    commissionRate: 8,
+    status: 'approved',
+    rating: 4.8,
+    currentBalance: 4250.00,
+    totalEarnings: 18450.00,
+  },
+];
+
 const products = [
   {
     _id: '662000000000000000000011',
@@ -55,6 +109,7 @@ const products = [
     isActive: true,
     isApproved: true,
     vendor: {
+      _id: vendorProfiles[0]._id,
       storeName: 'Apex Electronics',
       rating: 4.8,
     },
@@ -75,6 +130,7 @@ const products = [
     isActive: true,
     isApproved: true,
     vendor: {
+      _id: vendorProfiles[0]._id,
       storeName: 'Apex Electronics',
       rating: 4.8,
     },
@@ -95,6 +151,7 @@ const products = [
     isActive: true,
     isApproved: true,
     vendor: {
+      _id: vendorProfiles[0]._id,
       storeName: 'Apex Electronics',
       rating: 4.8,
     },
@@ -115,6 +172,7 @@ const products = [
     isActive: true,
     isApproved: true,
     vendor: {
+      _id: vendorProfiles[0]._id,
       storeName: 'Apex Electronics',
       rating: 4.8,
     },
@@ -135,6 +193,7 @@ const products = [
     isActive: true,
     isApproved: true,
     vendor: {
+      _id: vendorProfiles[0]._id,
       storeName: 'Urban Threads Lifestyle',
       rating: 4.9,
     },
@@ -155,6 +214,7 @@ const products = [
     isActive: true,
     isApproved: true,
     vendor: {
+      _id: vendorProfiles[0]._id,
       storeName: 'Urban Threads Lifestyle',
       rating: 4.9,
     },
@@ -175,6 +235,7 @@ const products = [
     isActive: true,
     isApproved: true,
     vendor: {
+      _id: vendorProfiles[0]._id,
       storeName: 'Apex Electronics',
       rating: 4.8,
     },
@@ -195,13 +256,39 @@ const products = [
     isActive: true,
     isApproved: true,
     vendor: {
+      _id: vendorProfiles[0]._id,
       storeName: 'Urban Threads Lifestyle',
       rating: 4.9,
     },
   },
 ];
 
+const adminAnalytics = {
+  totalCustomers: 24,
+  totalVendors: 8,
+  totalProducts: 25,
+  totalOrders: 14,
+  grossMarketplaceVolume: 12450.00,
+  totalPlatformCommission: 1245.00,
+  totalVendorEarnings: 11205.00,
+  vendorBreakdown: {
+    total: 8,
+    active: 6,
+    activePct: '75.0',
+    pending: 2,
+    pendingPct: '25.0',
+    suspended: 0,
+    suspendedPct: '0.0',
+    rejected: 0,
+    rejectedPct: '0.0',
+  },
+  pendingPayouts: 3200.00,
+};
+
 module.exports = {
   categories,
   products,
+  users,
+  vendorProfiles,
+  adminAnalytics,
 };

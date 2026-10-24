@@ -18,9 +18,27 @@ const getUserCart = async (userId) => {
   return cart;
 };
 
+const mongoose = require('mongoose');
+
 // GET /api/v1/cart
 exports.getCart = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          cart: {
+            items: [],
+            subtotal: 0,
+            discountTotal: 0,
+            taxTotal: 0,
+            shippingFee: 0,
+            grandTotal: 0,
+          },
+        },
+      });
+    }
+
     const cart = await getUserCart(req.user._id);
 
     // Sync live prices and stock
