@@ -1,25 +1,30 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const { getDatabase } = require('../config/sqlite');
 const { isRedisConnected } = require('../config/redis');
 const { isElasticsearchConnected } = require('../config/elasticsearch');
 
 const router = express.Router();
 
 router.get('/health', (req, res) => {
-  const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  let sqliteStatus = 'connected';
+  try {
+    getDatabase().prepare('SELECT 1').get();
+  } catch (e) {
+    sqliteStatus = 'disconnected';
+  }
   const redisStatus = isRedisConnected() ? 'connected' : 'in-memory-fallback';
-  const esStatus = isElasticsearchConnected() ? 'connected' : 'mongo-text-fallback';
+  const esStatus = isElasticsearchConnected() ? 'connected' : 'sqlite-search';
 
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     services: {
-      mongodb: mongoStatus,
+      sqlite: sqliteStatus,
       redis: redisStatus,
       elasticsearch: esStatus,
     },
     version: '1.0.0',
-    platform: 'Multi-Vendor Marketplace API'
+    platform: 'Multi-Vendor Marketplace API (SQLite Engine)'
   });
 });
 

@@ -1,5 +1,5 @@
 require('dotenv').config();
-const mongoose = require('mongoose');
+const connectDB = require('./config/db');
 const User = require('./models/User');
 const Category = require('./models/Category');
 const VendorProfile = require('./models/VendorProfile');
@@ -13,8 +13,8 @@ const Cart = require('./models/Cart');
 
 const seedDatabase = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('Connected to MongoDB for expanded seeding...');
+    await connectDB();
+    console.log('Connected to SQLite database for expanded seeding...');
 
     // Clear existing collections
     await Promise.all([
