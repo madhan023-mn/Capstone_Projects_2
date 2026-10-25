@@ -121,24 +121,24 @@ export default function ProductDetail() {
       : 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
+    <div className="min-h-screen bg-yellow-50/40 flex flex-col justify-between text-slate-800">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 w-full">
         {/* Breadcrumb navigation */}
-        <div className="flex items-center gap-2 text-xs text-slate-500 mb-6 font-medium">
-          <Link to="/" className="hover:text-amber-600">Home</Link>
+        <div className="flex items-center gap-2 text-xs text-slate-500 mb-4 sm:mb-6 font-medium overflow-x-auto pb-1 no-scrollbar">
+          <Link to="/" className="hover:text-amber-600 shrink-0">Home</Link>
           <span>/</span>
-          <Link to="/products" className="hover:text-amber-600">Catalog</Link>
+          <Link to="/products" className="hover:text-amber-600 shrink-0">Catalog</Link>
           <span>/</span>
           <span className="text-slate-900 font-semibold truncate max-w-xs">{product.title}</span>
         </div>
 
         {/* Product Showcase Grid */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div className="bg-white rounded-2xl border border-yellow-200/90 shadow-xs p-4 sm:p-6 lg:p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10">
           
           {/* Left: Product Images Gallery */}
-          <div className="lg:col-span-5 flex flex-col gap-4">
+          <div className="md:col-span-1 lg:col-span-5 flex flex-col gap-4">
             <div className="aspect-square rounded-xl bg-slate-50 border border-slate-100 overflow-hidden flex items-center justify-center p-4">
               <img
                 src={product.images?.[selectedImage] || product.images?.[0]}
@@ -166,7 +166,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Middle: Details & Description */}
-          <div className="lg:col-span-4 flex flex-col justify-between">
+          <div className="md:col-span-1 lg:col-span-4 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2">
                 <span>Brand: <strong className="text-slate-800">{product.brand}</strong></span>
@@ -174,7 +174,7 @@ export default function ProductDetail() {
                 <span>SKU: {product.sku}</span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
                 {product.title}
               </h1>
 
@@ -201,17 +201,17 @@ export default function ProductDetail() {
               </div>
 
               {/* Price block */}
-              <div className="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-100">
+              <div className="mt-5 sm:mt-6 p-4 rounded-xl bg-yellow-50/60 border border-yellow-200">
                 <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-black text-slate-900">
+                  <span className="text-2xl sm:text-3xl font-black text-slate-900">
                     ${displayPrice.toFixed(2)}
                   </span>
                   {discountPercent > 0 && (
                     <>
-                      <span className="text-sm text-slate-400 line-through">
+                      <span className="text-xs sm:text-sm text-slate-400 line-through">
                         ${product.price.toFixed(2)}
                       </span>
-                      <span className="bg-red-100 text-red-700 text-xs font-black px-2 py-0.5 rounded">
+                      <span className="bg-rose-100 text-rose-700 text-xs font-black px-2 py-0.5 rounded">
                         Save {discountPercent}%
                       </span>
                     </>
@@ -225,14 +225,14 @@ export default function ProductDetail() {
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                   About this item
                 </h3>
-                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line">
                   {product.description}
                 </p>
               </div>
             </div>
 
             {/* Value features */}
-            <div className="mt-8 pt-6 border-t border-slate-100 grid grid-cols-2 gap-4 text-xs text-slate-600">
+            <div className="mt-6 pt-5 border-t border-yellow-100 grid grid-cols-2 gap-3 text-xs text-slate-600">
               <div className="flex items-center gap-2">
                 <Truck className="w-4 h-4 text-amber-500" />
                 <span>Dispatched by Vendor</span>
@@ -245,8 +245,8 @@ export default function ProductDetail() {
           </div>
 
           {/* Right: Buy Box & Vendor Card (Yellow and White Theme) */}
-          <div className="lg:col-span-3 flex flex-col justify-between">
-            <div className="bg-white border-2 border-amber-300 rounded-3xl p-6 shadow-md space-y-5">
+          <div className="md:col-span-2 lg:col-span-3 flex flex-col justify-between">
+            <div className="bg-white border border-yellow-300 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4 sm:space-y-5">
               
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-black text-slate-900">

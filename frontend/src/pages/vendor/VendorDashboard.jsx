@@ -65,16 +65,16 @@ export default function VendorDashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
         {/* Vendor Header (Light Yellow & White Theme) */}
-        <div className="bg-white rounded-2xl border border-yellow-200/90 shadow-xs p-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
+        <div className="bg-white rounded-2xl border border-yellow-200/90 shadow-xs p-4 sm:p-6 mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
+          <div className="flex items-center gap-3.5 sm:gap-4">
             <img
               src={vendor?.logo || 'https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&w=300&q=80'}
               alt=""
-              className="w-14 h-14 rounded-2xl object-cover border border-yellow-200"
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl object-cover border border-yellow-200"
             />
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black text-slate-900">{vendor?.storeName}</h1>
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900">{vendor?.storeName}</h1>
                 <span className="bg-yellow-100 text-yellow-900 border border-yellow-300 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
                   Verified
                 </span>
@@ -88,22 +88,22 @@ export default function VendorDashboard() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex flex-wrap gap-2 sm:gap-2.5">
             <Link
               to="/vendor/products/new"
-              className="px-4 py-2 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black text-xs transition shadow-xs flex items-center gap-1.5"
+              className="px-3.5 sm:px-4 py-2 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black text-xs transition shadow-xs flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" /> Add Product
             </Link>
             <Link
               to="/vendor/products"
-              className="px-4 py-2 rounded-xl bg-white hover:bg-yellow-50 text-slate-900 border border-yellow-300 font-bold text-xs transition shadow-xs flex items-center gap-1.5"
+              className="px-3.5 sm:px-4 py-2 rounded-xl bg-white hover:bg-yellow-50 text-slate-900 border border-yellow-300 font-bold text-xs transition shadow-xs flex items-center gap-1.5"
             >
               <Package className="w-4 h-4 text-amber-700" /> Manage Catalog
             </Link>
             <Link
               to="/vendor/earnings"
-              className="px-4 py-2 rounded-xl bg-yellow-50 hover:bg-yellow-100 text-slate-900 border border-yellow-200 font-bold text-xs transition shadow-xs flex items-center gap-1.5"
+              className="px-3.5 sm:px-4 py-2 rounded-xl bg-yellow-50 hover:bg-yellow-100 text-slate-900 border border-yellow-200 font-bold text-xs transition shadow-xs flex items-center gap-1.5"
             >
               <Wallet className="w-4 h-4 text-amber-700" /> Payouts & Ledger
             </Link>
@@ -111,15 +111,15 @@ export default function VendorDashboard() {
         </div>
 
         {/* 4 KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-          <div className="bg-white p-5 rounded-2xl border border-yellow-200/90 shadow-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-6 sm:mb-8">
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-yellow-200/90 shadow-xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Gross Sales</span>
-              <div className="w-8 h-8 rounded-xl bg-yellow-100 text-amber-800 flex items-center justify-center font-bold">
-                <DollarSign className="w-4 h-4" />
+              <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Gross Sales</span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-yellow-100 text-amber-800 flex items-center justify-center font-bold">
+                <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
-            <p className="text-2xl font-black text-slate-900">
+            <p className="text-xl sm:text-2xl font-black text-slate-900">
               ${stats.totalGrossSales?.toFixed(2) || '0.00'}
             </p>
           </div>

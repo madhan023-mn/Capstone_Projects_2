@@ -108,53 +108,55 @@ export default function Cart() {
               {Object.entries(groupedByVendor).map(([vendorId, group]) => (
                 <div
                   key={vendorId}
-                  className="bg-white rounded-3xl border-2 border-amber-200/80 shadow-sm overflow-hidden"
+                  className="bg-white rounded-2xl border border-yellow-200/90 shadow-xs overflow-hidden"
                 >
                   {/* Vendor Store Header */}
-                  <div className="bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 px-6 py-3.5 border-b border-amber-200 flex items-center justify-between">
+                  <div className="bg-yellow-50/70 px-4 sm:px-6 py-3 border-b border-yellow-200 flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <Store className="w-4 h-4 text-amber-600" />
-                      <span className="text-xs font-black text-slate-800">
+                      <Store className="w-4 h-4 text-amber-700" />
+                      <span className="text-xs font-bold text-slate-800">
                         Dispatched by: <strong className="text-slate-950 font-black">{group.storeName}</strong>
                       </span>
                     </div>
-                    <span className="text-[11px] text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full font-bold border border-amber-200">Independent Merchant</span>
+                    <span className="text-[10px] text-amber-900 bg-yellow-100 px-2 py-0.5 rounded-full font-bold border border-yellow-300">
+                      Merchant Fulfillment
+                    </span>
                   </div>
 
                   {/* Items for this vendor */}
-                  <div className="divide-y divide-amber-100/60 px-6">
+                  <div className="divide-y divide-yellow-100/60 px-4 sm:px-6">
                     {group.items.map((item) => (
-                      <div key={item.product?._id} className="py-5 flex gap-4 sm:gap-6 items-center">
-                        <Link to={`/products/${item.product?._id}`} className="flex-shrink-0">
+                      <div key={item.product?._id} className="py-4 sm:py-5 flex gap-3 sm:gap-6 items-center">
+                        <Link to={`/products/${item.product?._id}`} className="shrink-0">
                           <img
                             src={item.product?.images?.[0] || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80'}
                             alt={item.product?.title}
-                            className="w-20 h-20 object-cover rounded-2xl border-2 border-amber-100"
+                            className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl border border-yellow-200"
                           />
                         </Link>
 
                         <div className="flex-1 min-w-0">
                           <Link
                             to={`/products/${item.product?._id}`}
-                            className="text-sm font-bold text-slate-900 hover:text-amber-600 transition truncate block"
+                            className="text-xs sm:text-sm font-bold text-slate-900 hover:text-amber-600 transition truncate block"
                           >
                             {item.product?.title}
                           </Link>
-                          <p className="text-xs text-slate-500 mt-0.5">Unit Price: <span className="font-bold text-slate-800">${item.price.toFixed(2)}</span></p>
+                          <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Unit: <span className="font-bold text-slate-800">${item.price.toFixed(2)}</span></p>
 
-                          <div className="mt-3 flex items-center gap-4">
+                          <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center gap-3 sm:gap-4">
                             {/* Quantity Controls */}
-                            <div className="flex items-center border-2 border-amber-200 rounded-xl overflow-hidden bg-amber-50/50 text-xs font-bold">
+                            <div className="flex items-center border border-yellow-300 rounded-xl overflow-hidden bg-yellow-50/50 text-xs font-bold">
                               <button
                                 onClick={() => updateQuantity(item.product?._id, item.quantity - 1)}
-                                className="px-2.5 py-1 hover:bg-amber-100 text-slate-800"
+                                className="px-2 sm:px-2.5 py-1 hover:bg-yellow-100 text-slate-800"
                               >
                                 -
                               </button>
-                              <span className="px-3 py-1 bg-white text-slate-950 font-black">{item.quantity}</span>
+                              <span className="px-2.5 sm:px-3 py-1 bg-white text-slate-950 font-black">{item.quantity}</span>
                               <button
                                 onClick={() => updateQuantity(item.product?._id, item.quantity + 1)}
-                                className="px-2.5 py-1 hover:bg-amber-100 text-slate-800"
+                                className="px-2 sm:px-2.5 py-1 hover:bg-yellow-100 text-slate-800"
                               >
                                 +
                               </button>
@@ -162,17 +164,17 @@ export default function Cart() {
 
                             <button
                               onClick={() => removeFromCart(item.product?._id)}
-                              className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1 font-bold"
+                              className="text-xs text-rose-600 hover:text-rose-700 flex items-center gap-1 font-bold"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
-                              Remove
+                              <span className="hidden xs:inline">Remove</span>
                             </button>
                           </div>
                         </div>
 
                         {/* Item Total */}
-                        <div className="text-right">
-                          <span className="text-base font-black text-slate-900">
+                        <div className="text-right shrink-0">
+                          <span className="text-sm sm:text-base font-black text-slate-900">
                             ${(item.price * item.quantity).toFixed(2)}
                           </span>
                         </div>

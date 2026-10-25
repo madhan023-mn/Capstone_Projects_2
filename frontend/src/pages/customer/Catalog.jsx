@@ -234,31 +234,31 @@ export default function Catalog() {
           </aside>
 
           {/* Products Grid */}
-          <main className="flex-1">
+          <main className="flex-1 min-w-0">
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="bg-white rounded-3xl h-80 animate-pulse border-2 border-amber-200/60"></div>
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="bg-white rounded-2xl h-64 sm:h-80 animate-pulse border border-yellow-200/60 p-4"></div>
                 ))}
               </div>
             ) : products.length === 0 ? (
-              <div className="bg-white border-2 border-amber-200/80 rounded-3xl p-12 text-center shadow-md">
-                <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-4 border border-amber-300">
-                  <Filter className="w-8 h-8" />
+              <div className="bg-white border border-yellow-200/90 rounded-2xl p-8 sm:p-12 text-center shadow-xs">
+                <div className="w-14 h-14 rounded-full bg-yellow-100 text-amber-600 flex items-center justify-center mx-auto mb-3 border border-yellow-300">
+                  <Filter className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-black text-slate-900">No matching products found</h3>
+                <h3 className="text-base sm:text-lg font-black text-slate-900">No matching products found</h3>
                 <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                  Try adjusting your search query, selecting another category, or clearing filters.
+                  Try adjusting your search query, selecting another category, or clearing active filters.
                 </p>
                 <button
                   onClick={clearAllFilters}
-                  className="mt-5 px-6 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs transition shadow-md shadow-amber-400/20"
+                  className="mt-4 px-5 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black text-xs transition shadow-xs"
                 >
                   Reset All Filters
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
                 {products.map((product) => (
                   <ProductCard key={product._id} product={product} />
                 ))}
@@ -268,6 +268,137 @@ export default function Catalog() {
 
         </div>
       </div>
+
+      {/* Mobile Slide-Over Filter Drawer */}
+      {isMobileFilterOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex justify-end">
+          {/* Backdrop */}
+          <div
+            onClick={() => setIsMobileFilterOpen(false)}
+            className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs transition-opacity"
+          />
+
+          {/* Drawer content */}
+          <div className="relative w-full max-w-xs bg-white h-full shadow-2xl flex flex-col justify-between z-10 p-5 overflow-y-auto">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-3 border-b border-yellow-100">
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="w-4 h-4 text-amber-600" />
+                  <span className="font-black text-sm text-slate-900">Filter Products</span>
+                </div>
+                <button
+                  onClick={() => setIsMobileFilterOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-yellow-50"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Department */}
+              <div>
+                <h3 className="text-xs font-black uppercase tracking-wider text-amber-900 mb-2.5">
+                  Department
+                </h3>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => { updateParam('category', 'all'); setIsMobileFilterOpen(false); }}
+                    className={`w-full text-left text-xs px-3 py-2 rounded-xl font-bold transition ${
+                      currentCategory === 'all'
+                        ? 'bg-yellow-400 text-slate-950 font-black'
+                        : 'text-slate-700 hover:bg-yellow-50'
+                    }`}
+                  >
+                    All Departments
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat._id}
+                      onClick={() => { updateParam('category', cat.slug); setIsMobileFilterOpen(false); }}
+                      className={`w-full text-left text-xs px-3 py-2 rounded-xl font-bold transition ${
+                        currentCategory === cat.slug
+                          ? 'bg-yellow-400 text-slate-950 font-black'
+                          : 'text-slate-700 hover:bg-yellow-50'
+                      }`}
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Rating */}
+              <div>
+                <h3 className="text-xs font-black uppercase tracking-wider text-amber-900 mb-2.5">
+                  Minimum Rating
+                </h3>
+                <div className="space-y-1.5">
+                  {[4, 3].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => { updateParam('rating', currentRating === String(star) ? '' : String(star)); setIsMobileFilterOpen(false); }}
+                      className={`w-full flex items-center justify-between text-xs px-3 py-2 rounded-xl transition ${
+                        currentRating === String(star)
+                          ? 'bg-yellow-100 text-amber-950 font-black border border-yellow-300'
+                          : 'text-slate-700 hover:bg-yellow-50'
+                      }`}
+                    >
+                      <div className="flex text-amber-400">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-3.5 h-3.5 ${
+                              i < star ? 'fill-amber-400 text-amber-400' : 'text-slate-200 fill-slate-200'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="font-bold">& Up</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price Range */}
+              <div>
+                <h3 className="text-xs font-black uppercase tracking-wider text-amber-900 mb-2.5">
+                  Price ($)
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min $"
+                    value={currentMinPrice}
+                    onChange={(e) => updateParam('minPrice', e.target.value)}
+                    className="w-full bg-yellow-50/40 border border-yellow-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-yellow-400"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max $"
+                    value={currentMaxPrice}
+                    onChange={(e) => updateParam('maxPrice', e.target.value)}
+                    className="w-full bg-yellow-50/40 border border-yellow-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-yellow-400"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-yellow-100 flex gap-2">
+              <button
+                onClick={() => { clearAllFilters(); setIsMobileFilterOpen(false); }}
+                className="w-1/2 py-2.5 text-xs font-bold text-slate-700 bg-yellow-50 hover:bg-yellow-100 rounded-xl border border-yellow-200"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => setIsMobileFilterOpen(false)}
+                className="w-1/2 py-2.5 text-xs font-black text-slate-950 bg-yellow-400 hover:bg-yellow-500 rounded-xl shadow-xs"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

@@ -255,24 +255,189 @@ export default function Navbar({ onSearchSubmit, categories = [] }) {
           </div>
         </div>
 
-        {/* Mobile Search Input */}
+        {/* Mobile Slide-down Drawer & Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-3 border-t border-yellow-100">
-            <form onSubmit={handleSearch} className="flex w-full rounded-xl overflow-hidden border border-yellow-300 bg-white">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white text-slate-900 px-3 py-2 text-xs focus:outline-none font-medium"
-              />
-              <button
-                type="submit"
-                className="bg-yellow-400 text-slate-950 px-3.5 font-black text-xs"
-              >
-                <Search className="w-3.5 h-3.5" />
-              </button>
+          <div className="md:hidden py-4 border-t border-yellow-200 bg-white/98 rounded-b-2xl shadow-xl space-y-4 animate-in slide-in-from-top-2 duration-200">
+            {/* Search Input with Category Selector */}
+            <form onSubmit={(e) => { handleSearch(e); setIsMobileMenuOpen(false); }} className="space-y-2">
+              <div className="flex w-full rounded-xl overflow-hidden border border-yellow-300 bg-white shadow-xs">
+                <input
+                  type="text"
+                  placeholder="Search products, brands..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-white text-slate-900 px-3.5 py-2.5 text-xs focus:outline-none font-medium placeholder-slate-400"
+                />
+                <button
+                  type="submit"
+                  className="bg-yellow-400 hover:bg-yellow-500 text-slate-950 px-4 font-black text-xs flex items-center justify-center transition"
+                  aria-label="Search"
+                >
+                  <Search className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
+
+              {/* Category Pills on Mobile */}
+              {categories.length > 0 && (
+                <div className="flex gap-1.5 overflow-x-auto pb-1 text-[11px] no-scrollbar">
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedCategory('all'); navigate('/products'); setIsMobileMenuOpen(false); }}
+                    className={`px-2.5 py-1 rounded-lg font-bold shrink-0 transition ${
+                      selectedCategory === 'all' ? 'bg-yellow-400 text-slate-950' : 'bg-yellow-50 text-slate-700 border border-yellow-200'
+                    }`}
+                  >
+                    All
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat._id || cat.slug}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategory(cat.slug);
+                        navigate(`/products?category=${cat.slug}`);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg font-bold shrink-0 transition ${
+                        selectedCategory === cat.slug ? 'bg-yellow-400 text-slate-950' : 'bg-yellow-50 text-slate-700 border border-yellow-200'
+                      }`}
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </form>
+
+            {/* Quick Mobile Navigation Links */}
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-yellow-100 text-xs font-bold">
+              <Link
+                to="/products"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-2 p-2.5 rounded-xl bg-yellow-50 hover:bg-yellow-100 text-slate-800 border border-yellow-200 transition"
+              >
+                <ShoppingBag className="w-4 h-4 text-amber-600" />
+                <span>All Products</span>
+              </Link>
+
+              <Link
+                to="/wishlist"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-2 p-2.5 rounded-xl bg-yellow-50 hover:bg-yellow-100 text-slate-800 border border-yellow-200 transition"
+              >
+                <Heart className="w-4 h-4 text-amber-600" />
+                <span>My Wishlist</span>
+              </Link>
+
+              <Link
+                to="/cart"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-2 p-2.5 rounded-xl bg-yellow-50 hover:bg-yellow-100 text-slate-800 border border-yellow-200 transition"
+              >
+                <ShoppingCart className="w-4 h-4 text-amber-600" />
+                <span>Basket ({totalItemsCount})</span>
+              </Link>
+
+              <Link
+                to="/orders"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-2 p-2.5 rounded-xl bg-yellow-50 hover:bg-yellow-100 text-slate-800 border border-yellow-200 transition"
+              >
+                <Store className="w-4 h-4 text-amber-600" />
+                <span>My Orders</span>
+              </Link>
+            </div>
+
+            {/* Portal & Role Badges for Mobile */}
+            <div className="pt-2 border-t border-yellow-100">
+              {isVendor ? (
+                <Link
+                  to="/vendor/dashboard"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-yellow-100/70 hover:bg-yellow-200 text-amber-950 font-black text-xs border border-yellow-300 transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <Store className="w-4 h-4 text-amber-800" />
+                    <span>Vendor Seller Portal</span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 -rotate-90" />
+                </Link>
+              ) : isAdmin ? (
+                <Link
+                  to="/admin/dashboard"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-yellow-100/70 hover:bg-yellow-200 text-amber-950 font-black text-xs border border-yellow-300 transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-amber-800" />
+                    <span>Admin Management Console</span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 -rotate-90" />
+                </Link>
+              ) : (
+                <Link
+                  to="/vendor/apply"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-yellow-100/70 hover:bg-yellow-200 text-amber-950 font-black text-xs border border-yellow-300 transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <Store className="w-4 h-4 text-amber-800" />
+                    <span>Become a Verified Seller</span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 -rotate-90" />
+                </Link>
+              )}
+            </div>
+
+            {/* User Account / Auth Section */}
+            <div className="pt-2 border-t border-yellow-100">
+              {isAuthenticated ? (
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-yellow-50/50 border border-yellow-200">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-yellow-400 text-slate-950 font-black flex items-center justify-center text-xs shrink-0">
+                      {user?.name?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-slate-900 truncate">{user?.name}</p>
+                      <p className="text-[10px] text-slate-500 truncate">{user?.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to="/profile"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="px-2.5 py-1.5 rounded-lg bg-white border border-yellow-300 text-xs font-bold text-slate-800"
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
+                      className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50"
+                      title="Sign Out"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-2.5 text-center text-xs font-black bg-yellow-400 hover:bg-yellow-500 text-slate-950 rounded-xl transition shadow-xs"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-2.5 text-center text-xs font-bold bg-white hover:bg-yellow-50 text-slate-900 border border-yellow-300 rounded-xl transition shadow-xs"
+                  >
+                    Register
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

@@ -15,6 +15,7 @@ import {
   Calendar,
   TrendingUp,
   Menu,
+  X,
   LogOut,
   ShoppingBag,
   ExternalLink,
@@ -35,6 +36,7 @@ export default function AdminDashboard() {
   
   // Interactive UI States
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showDateDropdown, setShowDateDropdown] = useState(false);
@@ -147,13 +149,88 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-yellow-50/40 text-slate-800 flex font-sans antialiased">
+    <div className="min-h-screen bg-yellow-50/40 text-slate-800 flex font-sans antialiased relative">
       
-      {/* SIDEBAR */}
+      {/* MOBILE DRAWER BACKDROP */}
+      {isMobileDrawerOpen && (
+        <div
+          onClick={() => setIsMobileDrawerOpen(false)}
+          className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-50 lg:hidden transition-opacity"
+        />
+      )}
+
+      {/* MOBILE OFF-CANVAS DRAWER (< lg) */}
       <aside
-        className={`${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-yellow-200/90 flex flex-col shadow-2xl transform transition-transform duration-300 ease-in-out lg:hidden ${
+          isMobileDrawerOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="h-16 px-5 border-b border-yellow-100 flex items-center justify-between">
+          <Link to="/" onClick={() => setIsMobileDrawerOpen(false)} className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-yellow-400 flex items-center justify-center text-slate-950 font-black shadow-xs">
+              <ShoppingBag className="w-5 h-5 stroke-[2.5]" />
+            </div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-lg font-black tracking-tight text-slate-900">
+                Market<span className="text-amber-500">Verse</span>
+              </span>
+              <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">
+                Admin Console
+              </span>
+            </div>
+          </Link>
+          <button
+            onClick={() => setIsMobileDrawerOpen(false)}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-yellow-50"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+          {sidebarItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = item.path === '/admin/dashboard';
+            return (
+              <Link
+                key={item.name}
+                to={item.path}
+                onClick={() => setIsMobileDrawerOpen(false)}
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
+                  isActive
+                    ? 'bg-yellow-400 text-slate-950 font-black shadow-xs'
+                    : 'text-slate-600 hover:text-slate-950 hover:bg-yellow-50/70'
+                }`}
+              >
+                <div className="flex items-center gap-3 truncate">
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-slate-950 stroke-[2.5]' : 'text-slate-400'}`} />
+                  <span className="truncate">{item.name}</span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="p-3 border-t border-yellow-100 bg-yellow-50/30">
+          <Link
+            to="/"
+            onClick={() => setIsMobileDrawerOpen(false)}
+            className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-yellow-200 text-xs font-bold text-slate-800 hover:text-slate-950 hover:border-yellow-400 transition shadow-xs"
+          >
+            <div className="flex items-center gap-2">
+              <Store className="w-4 h-4 text-amber-600" />
+              <span>Live Marketplace</span>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+          </Link>
+        </div>
+      </aside>
+
+      {/* DESKTOP SIDEBAR (>= lg) */}
+      <aside
+        className={`hidden lg:flex ${
           isSidebarOpen ? 'w-64' : 'w-20'
-        } bg-white border-r border-yellow-200/90 flex flex-col shrink-0 transition-all duration-300 ease-in-out sticky top-0 h-screen z-40 select-none shadow-xs`}
+        } bg-white border-r border-yellow-200/90 flex-col shrink-0 transition-all duration-300 ease-in-out sticky top-0 h-screen z-40 select-none shadow-xs`}
       >
         {/* Brand Header */}
         <div className="h-16 px-5 border-b border-yellow-100 flex items-center justify-between">
@@ -224,14 +301,15 @@ export default function AdminDashboard() {
       </aside>
 
       {/* MAIN CONTENT */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-w-0 w-full overflow-x-hidden">
         
         {/* Top Bar */}
-        <header className="h-16 bg-white border-b border-yellow-200/90 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-          <div className="flex items-center gap-4 flex-1 max-w-md">
+        <header className="h-16 bg-white border-b border-yellow-200/90 px-4 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+          <div className="flex items-center gap-2 sm:gap-4 flex-1 max-w-md">
             <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              onClick={() => setIsMobileDrawerOpen(true)}
               className="p-2 rounded-xl text-slate-500 hover:bg-yellow-50 transition lg:hidden"
+              aria-label="Open Navigation"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -293,22 +371,22 @@ export default function AdminDashboard() {
         </header>
 
         {/* Dashboard Content */}
-        <main className="p-6 sm:p-8 space-y-6 flex-1">
+        <main className="p-4 sm:p-6 lg:p-8 space-y-6 flex-1">
           
           {/* Header Row */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight">Admin Overview</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Admin Overview</h1>
               <p className="text-xs text-slate-500 mt-1 font-medium">
                 Real-time performance and multi-vendor metrics
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
               <div className="relative">
                 <button
                   onClick={() => setShowDateDropdown(!showDateDropdown)}
-                  className="flex items-center gap-2 px-3.5 py-2 bg-white border border-yellow-200 rounded-xl text-xs font-bold text-slate-700 hover:border-yellow-400 shadow-xs transition"
+                  className="flex items-center gap-2 px-3 sm:px-3.5 py-2 bg-white border border-yellow-200 rounded-xl text-xs font-bold text-slate-700 hover:border-yellow-400 shadow-xs transition"
                 >
                   <Calendar className="w-3.5 h-3.5 text-amber-600" />
                   <span>{dateRange}</span>
@@ -334,25 +412,26 @@ export default function AdminDashboard() {
 
               <button
                 onClick={handleDownloadReport}
-                className="flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black rounded-xl text-xs shadow-xs transition"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black rounded-xl text-xs shadow-xs transition"
               >
                 <Download className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Export Report</span>
+                <span className="hidden xs:inline">Export Report</span>
+                <span className="xs:hidden">Export</span>
               </button>
             </div>
           </div>
 
           {/* 5 KPI Cards in Light Yellow & White Theme */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="bg-white p-5 rounded-2xl border border-yellow-200/90 shadow-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
+            <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-yellow-200/90 shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Sales</span>
-                <div className="w-8 h-8 rounded-xl bg-yellow-100 text-amber-800 flex items-center justify-center font-bold">
-                  <ShoppingBag className="w-4 h-4 stroke-[2.5]" />
+                <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Total Sales</span>
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-yellow-100 text-amber-800 flex items-center justify-center font-bold">
+                  <ShoppingBag className="w-3.5 sm:w-4 h-3.5 sm:h-4 stroke-[2.5]" />
                 </div>
               </div>
-              <p className="text-2xl font-black text-slate-900 mt-2">{formatMoney(kpis.totalSales)}</p>
-              <div className="flex items-center gap-1 text-emerald-600 text-xs font-bold mt-2">
+              <p className="text-lg sm:text-2xl font-black text-slate-900 mt-2">{formatMoney(kpis.totalSales)}</p>
+              <div className="flex items-center gap-1 text-emerald-600 text-[10px] sm:text-xs font-bold mt-1 sm:mt-2">
                 <TrendingUp className="w-3 h-3" /> 18.6% vs last week
               </div>
             </div>
