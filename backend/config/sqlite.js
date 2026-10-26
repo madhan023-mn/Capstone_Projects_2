@@ -1,4 +1,10 @@
-const Database = require('better-sqlite3');
+let Database = null;
+try {
+  Database = require('better-sqlite3');
+} catch (e) {
+  console.warn('better-sqlite3 native binary not available:', e.message);
+}
+const { Pool } = require('pg');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -6,6 +12,30 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 
 let dbInstance = null;
+let pgPoolInstance = null;
+
+const NEON_PG_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL || 'postgresql://neondb_owner:npg_W5eN8cwVzdZL@ep-cool-hat-b4oaun4s-pooler.c-6.us-east-2.aws.neon.tech/marketverse?sslmode=require';
+
+function getPgPool() {
+  if (!pgPoolInstance && NEON_PG_URL) {
+    try {
+      pgPoolInstance = new Pool({
+        connectionString: NEON_PG_URL,
+        ssl: { rejectUnauthorized: false },
+        max: 10,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000,
+      });
+      pgPoolInstance.on('error', (err) => {
+        console.warn('PostgreSQL Pool idle error:', err.message);
+      });
+    } catch (e) {
+      console.warn('Could not initialize PostgreSQL pool:', e.message);
+      pgPoolInstance = null;
+    }
+  }
+  return pgPoolInstance;
+}
 
 // Determine appropriate database path (uses local file or /tmp in serverless)
 function getDbPath() {
@@ -26,12 +56,18 @@ function getDbPath() {
 }
 
 function getDatabase() {
+  if (!Database) return null;
   if (!dbInstance) {
-    const dbPath = getDbPath();
-    dbInstance = new Database(dbPath);
-    dbInstance.pragma('journal_mode = WAL');
-    dbInstance.pragma('foreign_keys = ON');
-    initTables(dbInstance);
+    try {
+      const dbPath = getDbPath();
+      dbInstance = new Database(dbPath);
+      dbInstance.pragma('journal_mode = WAL');
+      dbInstance.pragma('foreign_keys = ON');
+      initTables(dbInstance);
+    } catch (e) {
+      console.warn('SQLite initialization notice:', e.message);
+      return null;
+    }
   }
   return dbInstance;
 }
@@ -458,7 +494,32 @@ class Document {
       return String(v);
     });
 
-    db.prepare(sql).run(...sanitizedVals);
+    if (db) {
+      try {
+        db.prepare(sql).run(...sanitizedVals);
+      } catch (sqliteErr) {
+        console.warn('SQLite save notice:', sqliteErr.message);
+      }
+    }
+
+    // Persist to Neon PostgreSQL for permanent cloud storage
+    const pg = getPgPool();
+    if (pg) {
+      try {
+        const pgCols = cols.map(c => `"${c}"`).join(', ');
+        const pgPlaceholders = cols.map((_, i) => `$${i + 1}`).join(', ');
+        const pgUpdate = cols.filter(c => c !== '_id').map(c => `"${c}" = EXCLUDED."${c}"`).join(', ');
+        const pgSql = `
+          INSERT INTO ${this._model.tableName} (${pgCols})
+          VALUES (${pgPlaceholders})
+          ON CONFLICT (_id) DO UPDATE SET ${pgUpdate}
+        `;
+        await pg.query(pgSql, sanitizedVals);
+      } catch (pgErr) {
+        console.warn('PostgreSQL save notice:', pgErr.message);
+      }
+    }
+
     return this;
   }
 }
@@ -546,14 +607,27 @@ class QueryChain {
   }
 
   async exec() {
-    const db = getDatabase();
-    let rows = db.prepare(`SELECT * FROM ${this.model.tableName}`).all();
+    let rows = [];
+    const pg = getPgPool();
+    if (pg) {
+      try {
+        const res = await pg.query(`SELECT * FROM ${this.model.tableName}`);
+        rows = res.rows;
+      } catch (err) {
+        console.warn('PostgreSQL query notice, falling back to local SQLite:', err.message);
+        const db = getDatabase();
+        if (db) rows = db.prepare(`SELECT * FROM ${this.model.tableName}`).all();
+      }
+    } else {
+      const db = getDatabase();
+      if (db) rows = db.prepare(`SELECT * FROM ${this.model.tableName}`).all();
+    }
 
-    // In-memory filter matching SQLite data JSON
+    // In-memory filter matching data JSON
     let docs = rows.map(r => {
       let parsed = {};
       try {
-        parsed = JSON.parse(r.data);
+        parsed = typeof r.data === 'string' ? JSON.parse(r.data) : (r.data || { ...r });
       } catch (e) {
         parsed = { ...r };
       }
@@ -819,7 +893,17 @@ function createModel(modelName, tableName) {
       const cleanId = id?._id || id;
       const doc = await this.findById(cleanId);
       if (doc) {
-        db.prepare(`DELETE FROM ${this.tableName} WHERE _id = ?`).run(String(cleanId));
+        if (db) {
+          try {
+            db.prepare(`DELETE FROM ${this.tableName} WHERE _id = ?`).run(String(cleanId));
+          } catch (_) {}
+        }
+        const pg = getPgPool();
+        if (pg) {
+          try {
+            await pg.query(`DELETE FROM ${this.tableName} WHERE _id = $1`, [String(cleanId)]);
+          } catch (_) {}
+        }
       }
       return doc;
     },
@@ -834,12 +918,32 @@ function createModel(modelName, tableName) {
 
     async deleteMany(filter = {}) {
       const db = getDatabase();
+      const pg = getPgPool();
       if (!filter || Object.keys(filter).length === 0) {
-        return db.prepare(`DELETE FROM ${this.tableName}`).run();
+        if (db) {
+          try {
+            db.prepare(`DELETE FROM ${this.tableName}`).run();
+          } catch (_) {}
+        }
+        if (pg) {
+          try {
+            await pg.query(`DELETE FROM ${this.tableName}`);
+          } catch (_) {}
+        }
+        return { deletedCount: 0 };
       }
       const docs = await this.find(filter);
       for (const d of docs) {
-        db.prepare(`DELETE FROM ${this.tableName} WHERE _id = ?`).run(d._id);
+        if (db) {
+          try {
+            db.prepare(`DELETE FROM ${this.tableName} WHERE _id = ?`).run(d._id);
+          } catch (_) {}
+        }
+        if (pg) {
+          try {
+            await pg.query(`DELETE FROM ${this.tableName} WHERE _id = $1`, [d._id]);
+          } catch (_) {}
+        }
       }
       return { deletedCount: docs.length };
     },
@@ -870,6 +974,7 @@ const Review = createModel('Review', 'reviews');
 module.exports = {
   getDatabase,
   getDbPath,
+  getPgPool,
   User,
   Category,
   VendorProfile,
