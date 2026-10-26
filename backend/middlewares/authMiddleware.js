@@ -27,35 +27,47 @@ const protect = async (req, res, next) => {
     // 2) Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'marketverse-super-secret-jwt-key-2024');
 
-    // If database is offline, resolve from in-memory demo users
-    if (mongoose.connection.readyState !== 1) {
-      const match = fallbackData.users.find(u => u._id === decoded.id || u.id === decoded.id);
-      if (match) {
-        req.user = {
-          ...match,
-          changedPasswordAfter: () => false,
-        };
-        return next();
-      }
-    }
-
-    // 3) Check if user still exists
+    // 3) Check if user exists in database
     let currentUser = null;
     try {
       currentUser = await User.findById(decoded.id);
+      if (!currentUser && decoded.email) {
+        currentUser = await User.findOne({ email: decoded.email.trim().toLowerCase() });
+      }
     } catch (e) {
-      // Continue to fallback
+      currentUser = null;
     }
 
     if (!currentUser) {
-      const match = fallbackData.users.find(u => u._id === decoded.id || u.id === decoded.id);
+      const match = fallbackData.users.find(
+        (u) =>
+          u._id === decoded.id ||
+          u.id === decoded.id ||
+          (decoded.email && u.email.toLowerCase() === decoded.email.toLowerCase())
+      );
       if (match) {
-        req.user = {
+        currentUser = {
           ...match,
           changedPasswordAfter: () => false,
         };
-        return next();
+      } else if (decoded.id) {
+        // Re-hydrate registered user from valid signed JWT to survive serverless cold starts & multi-container resets
+        currentUser = {
+          _id: decoded.id,
+          id: decoded.id,
+          name: decoded.name || 'MarketVerse User',
+          email: decoded.email || '',
+          role: decoded.role || 'customer',
+          status: 'active',
+          changedPasswordAfter: () => false,
+        };
+        try {
+          await User.create(currentUser);
+        } catch (_) {}
       }
+    }
+
+    if (!currentUser) {
       return next(
         new AppError('The user belonging to this token no longer exists.', 401)
       );

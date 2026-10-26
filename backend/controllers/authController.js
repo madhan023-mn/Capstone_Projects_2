@@ -9,15 +9,24 @@ const AppError = require('../utils/appError');
 const fallbackData = require('../utils/fallbackData');
 
 // Helper to generate signed JWT token (30-day session by default)
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'marketverse-super-secret-jwt-key-2024', {
-    expiresIn: process.env.JWT_EXPIRES_IN || '30d',
-  });
+const signToken = (user) => {
+  const id = typeof user === 'object' ? (user._id || user.id) : user;
+  const email = typeof user === 'object' ? user.email : '';
+  const role = typeof user === 'object' ? user.role : 'customer';
+  const name = typeof user === 'object' ? user.name : '';
+
+  return jwt.sign(
+    { id: String(id), email, role, name },
+    process.env.JWT_SECRET || 'marketverse-super-secret-jwt-key-2024',
+    {
+      expiresIn: process.env.JWT_EXPIRES_IN || '30d',
+    }
+  );
 };
 
 // Helper to sanitize user output and return response with token
 const createSendToken = (user, statusCode, res, message = 'Success') => {
-  const token = signToken(user._id || user.id);
+  const token = signToken(user);
   const userObj = { ...user };
   delete userObj.password;
 
@@ -67,6 +76,7 @@ exports.register = async (req, res, next) => {
         status: 'active',
         createdAt: new Date().toISOString(),
       };
+      fallbackData.users.push(newUser);
       return createSendToken(newUser, 201, res, 'Account registered successfully (Demo Session)');
     }
 
@@ -83,6 +93,19 @@ exports.register = async (req, res, next) => {
       password,
       phone: phone || '',
       role: assignedRole,
+    });
+
+    // Also cache user in fallbackData so any worker can authenticate seamlessly
+    fallbackData.users.push({
+      _id: String(newUser._id || newUser.id),
+      id: String(newUser._id || newUser.id),
+      name: newUser.name,
+      email: cleanEmail,
+      password,
+      role: assignedRole,
+      phone: phone || '',
+      status: 'active',
+      createdAt: new Date().toISOString(),
     });
 
     createSendToken(newUser, 201, res, 'Account registered successfully');

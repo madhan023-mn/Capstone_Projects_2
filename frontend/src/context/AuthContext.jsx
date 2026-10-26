@@ -25,8 +25,11 @@ export const AuthProvider = ({ children }) => {
         setUser(response.data.data.user);
         localStorage.setItem('user', JSON.stringify(response.data.data.user));
       } catch (err) {
-        console.error('Session expired or invalid:', err);
-        logout();
+        console.warn('Session verification notice:', err.message);
+        // Only clear session if explicitly rejected by auth server with 401
+        if (err.response && err.response.status === 401) {
+          logout();
+        }
       } finally {
         setLoading(false);
       }

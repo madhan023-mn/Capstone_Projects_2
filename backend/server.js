@@ -27,6 +27,9 @@ const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 
+// Trust reverse proxy headers on Vercel and serverless platforms
+app.set('trust proxy', 1);
+
 // 1. Security Headers
 app.use(helmet({ crossOriginResourcePolicy: false }));
 
@@ -74,6 +77,7 @@ const apiLimiter = rateLimit({
   max: 1000, // limit each IP to 1000 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false, default: false },
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again in 15 minutes',
