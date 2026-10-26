@@ -197,6 +197,8 @@ exports.getMe = async (req, res, next) => {
     }
 
     if (!user) user = req.user;
+    const safeUser = typeof user.toObject === 'function' ? user.toObject() : { ...user };
+    delete safeUser.password;
 
     let extra = {};
 
@@ -220,7 +222,7 @@ exports.getMe = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: {
-        user,
+        user: safeUser,
         ...extra,
       },
     });
