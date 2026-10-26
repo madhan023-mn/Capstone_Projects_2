@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Tag, Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { Tag, Plus, Trash2, ArrowLeft, X } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import api from '../../api/axios';
@@ -120,7 +120,7 @@ export default function AdminCoupons() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {coupons.map((c) => (
               <div
                 key={c._id}
@@ -174,15 +174,10 @@ export default function AdminCoupons() {
         {/* Create Coupon Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl border border-yellow-300 max-w-md w-full p-6 shadow-xl space-y-4">
+            <div className="bg-white rounded-2xl border border-yellow-300 max-w-md w-full p-5 sm:p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between pb-2 border-b border-yellow-100">
                 <h3 className="text-sm font-bold text-slate-900">Create New Coupon</h3>
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="text-slate-400 hover:text-slate-600 font-bold text-sm"
-                >
-                  ✕
-                </button>
+                <button onClick={() => setShowCreateModal(false)} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-yellow-50" title="Close"><X className="w-4 h-4" /></button>
               </div>
 
               <form onSubmit={handleCreateCoupon} className="space-y-3.5">

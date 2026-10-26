@@ -19,16 +19,25 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor: handle 401 Unauthorized globally
+// Interceptor: handle 401 Unauthorized globally without interfering with login attempts
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear token if invalid or expired
-      if (localStorage.getItem('token')) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login?expired=true';
+      const requestUrl = error.config?.url || '';
+      const isAuthAction = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register');
+      const isCurrentPageAuth = typeof window !== 'undefined' && (
+        window.location.pathname.startsWith('/login') ||
+        window.location.pathname.startsWith('/register')
+      );
+
+      // Only redirect if an established session expired on an authenticated/protected route
+      if (!isAuthAction && !isCurrentPageAuth) {
+        if (localStorage.getItem('token')) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login?expired=true';
+        }
       }
     }
     return Promise.reject(error);

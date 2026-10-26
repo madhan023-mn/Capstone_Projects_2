@@ -93,7 +93,76 @@ export default function VendorProducts() {
           </div>
         ) : (
           <div className="bg-white rounded-3xl border-2 border-amber-200/80 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Mobile Card List (< md) */}
+            <div className="md:hidden divide-y divide-amber-100/60">
+              {products.map((prod) => (
+                <div key={prod._id} className="p-4 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <img
+                      src={prod.images?.[0] || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=150&q=80'}
+                      alt=""
+                      className="w-14 h-14 object-cover rounded-xl border border-amber-200 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <Link to={`/products/${prod._id}`} className="font-bold text-xs text-slate-900 hover:text-amber-600 line-clamp-2">
+                        {prod.title}
+                      </Link>
+                      <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-500">
+                        <span className="font-mono">SKU: {prod.sku}</span>
+                        <span>•</span>
+                        <span className="font-semibold text-slate-700">{prod.category?.name || 'Category'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-amber-100/60">
+                    <div>
+                      <span className="font-black text-slate-900 text-sm">${(prod.salePrice || prod.price).toFixed(2)}</span>
+                      {prod.salePrice && (
+                        <span className="ml-1 text-[10px] text-slate-400 line-through">${prod.price.toFixed(2)}</span>
+                      )}
+                    </div>
+
+                    <span className={`text-[11px] font-bold ${prod.stock < 5 ? 'text-red-600' : 'text-slate-700'}`}>
+                      {prod.stock} in stock
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <button
+                      onClick={() => toggleActive(prod._id, prod.isActive)}
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase transition border ${
+                        prod.isActive
+                          ? 'bg-amber-100 text-amber-950 border-amber-300'
+                          : 'bg-slate-100 text-slate-600 border-slate-200'
+                      }`}
+                    >
+                      {prod.isActive ? 'Active' : 'Hidden'}
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to={`/vendor/products/${prod._id}/edit`}
+                        className="p-1.5 rounded-lg border border-amber-200 text-slate-700 hover:text-amber-600 hover:bg-amber-50"
+                        title="Edit"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(prod._id)}
+                        className="p-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View (>= md) */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 text-slate-800 uppercase font-black text-[10px] border-b border-amber-200">
                   <tr>

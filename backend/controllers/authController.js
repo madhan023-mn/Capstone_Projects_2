@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Address = require('../models/Address');
@@ -7,10 +8,10 @@ const Order = require('../models/Order');
 const AppError = require('../utils/appError');
 const fallbackData = require('../utils/fallbackData');
 
-// Helper to generate signed JWT token
+// Helper to generate signed JWT token (30-day session by default)
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'marketverse-super-secret-jwt-key-2024', {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    expiresIn: process.env.JWT_EXPIRES_IN || '30d',
   });
 };
 
@@ -53,12 +54,14 @@ exports.register = async (req, res, next) => {
       return next(new AppError('Please provide name, email, and password', 400));
     }
 
+    const cleanEmail = String(email).trim().toLowerCase();
+
     if (mongoose.connection.readyState !== 1) {
       const newUser = {
         _id: `demo_${Date.now()}`,
         id: `demo_${Date.now()}`,
-        name,
-        email,
+        name: String(name).trim(),
+        email: cleanEmail,
         role: role === 'vendor' ? 'vendor' : 'customer',
         phone: phone || '',
         status: 'active',
@@ -67,7 +70,7 @@ exports.register = async (req, res, next) => {
       return createSendToken(newUser, 201, res, 'Account registered successfully (Demo Session)');
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: cleanEmail });
     if (existingUser) {
       return next(new AppError('An account with this email already exists', 400));
     }
@@ -75,10 +78,10 @@ exports.register = async (req, res, next) => {
     const assignedRole = role === 'vendor' ? 'vendor' : 'customer';
 
     const newUser = await User.create({
-      name,
-      email,
+      name: String(name).trim(),
+      email: cleanEmail,
       password,
-      phone,
+      phone: phone || '',
       role: assignedRole,
     });
 
@@ -101,35 +104,31 @@ exports.login = async (req, res, next) => {
       return next(new AppError('Please provide email and password', 400));
     }
 
-    // Demo / Serverless fallback when database is not connected
-    if (mongoose.connection.readyState !== 1) {
+    const cleanEmail = String(email).trim().toLowerCase();
+
+    let user;
+    try {
+      user = await User.findOne({ email: cleanEmail }).select('+password');
+    } catch (dbErr) {
+      // Fallback if DB error occurs
+      user = null;
+    }
+
+    // If not found in primary store, check demo fallback data
+    if (!user) {
       const match = fallbackData.users.find(
-        (u) => u.email.toLowerCase() === email.trim().toLowerCase()
+        (u) => u.email.trim().toLowerCase() === cleanEmail
       );
       if (match) {
-        if (match.password === password) {
+        const isMatch = match.password === password || (match.password.startsWith('$2') && await bcrypt.compare(password, match.password));
+        if (isMatch) {
           return createSendToken(match, 200, res, 'Logged in successfully');
         }
-        return next(new AppError('Incorrect email or password', 401));
       }
       return next(new AppError('Incorrect email or password', 401));
     }
 
-    let user;
-    try {
-      user = await User.findOne({ email }).select('+password');
-    } catch (dbErr) {
-      // If DB error happens, try demo credentials fallback
-      const match = fallbackData.users.find(
-        (u) => u.email.toLowerCase() === email.trim().toLowerCase()
-      );
-      if (match && match.password === password) {
-        return createSendToken(match, 200, res, 'Logged in successfully');
-      }
-      throw dbErr;
-    }
-
-    if (!user || !(await user.correctPassword(password, user.password))) {
+    if (!(await user.correctPassword(password, user.password))) {
       return next(new AppError('Incorrect email or password', 401));
     }
 

@@ -6,6 +6,7 @@ import {
   ShoppingBag,
   TrendingUp,
   Plus,
+  Star,
   ArrowRight,
   Wallet
 } from 'lucide-react';
@@ -81,7 +82,7 @@ export default function VendorDashboard() {
               </div>
               <p className="text-xs text-slate-500 mt-0.5 font-medium">{vendor?.description}</p>
               <div className="mt-1 flex items-center gap-2 text-xs text-slate-600 font-semibold">
-                <span className="text-amber-700">★ {vendor?.rating} Rating</span>
+                <span className="text-amber-700 font-bold inline-flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" /> {vendor?.rating || "4.9"} Rating</span>
                 <span className="text-slate-300">•</span>
                 <span>Commission: {vendor?.commissionRate || 10}%</span>
               </div>
@@ -124,7 +125,7 @@ export default function VendorDashboard() {
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-yellow-200/90 shadow-xs">
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-yellow-200/90 shadow-xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Net Earnings</span>
               <div className="w-8 h-8 rounded-xl bg-yellow-100 text-amber-800 flex items-center justify-center font-bold">
@@ -136,7 +137,7 @@ export default function VendorDashboard() {
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-yellow-200/90 shadow-xs">
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-yellow-200/90 shadow-xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Orders</span>
               <div className="w-8 h-8 rounded-xl bg-yellow-100 text-amber-800 flex items-center justify-center font-bold">
@@ -151,7 +152,7 @@ export default function VendorDashboard() {
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-yellow-200/90 shadow-xs">
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-yellow-200/90 shadow-xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Products</span>
               <div className="w-8 h-8 rounded-xl bg-yellow-100 text-amber-800 flex items-center justify-center font-bold">

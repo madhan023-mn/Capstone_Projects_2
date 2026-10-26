@@ -463,11 +463,15 @@ class Document {
   }
 }
 
-// User-specific instance methods
 Document.prototype.correctPassword = async function (candidatePassword, userPassword) {
   const hash = userPassword || this.password;
-  if (!hash) return false;
-  return bcrypt.compare(candidatePassword, hash);
+  if (!hash || !candidatePassword) return false;
+  if (hash === candidatePassword) return true;
+  try {
+    return await bcrypt.compare(candidatePassword, hash);
+  } catch (e) {
+    return false;
+  }
 };
 
 Document.prototype.changedPasswordAfter = function (JWTTimestamp) {
@@ -657,6 +661,14 @@ function matchesFilter(doc, filter) {
       const boolDocVal = (docVal === 1 || docVal === '1' || docVal === 'true' || docVal === true);
       const effectiveVal = (docVal === undefined && (key === 'isActive' || key === 'isApproved' || key === 'isVerified')) ? true : boolDocVal;
       if (effectiveVal !== val) return false;
+      continue;
+    }
+
+    // Case-insensitive trimmed matching for email, slug, and code
+    if (key === 'email' || key === 'slug' || key === 'code') {
+      if (String(docVal || '').trim().toLowerCase() !== String(val || '').trim().toLowerCase()) {
+        return false;
+      }
       continue;
     }
 

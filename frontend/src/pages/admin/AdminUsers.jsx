@@ -71,7 +71,7 @@ export default function AdminUsers() {
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2.5">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
               <div className="relative">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -79,7 +79,7 @@ export default function AdminUsers() {
                   placeholder="Search users..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 pr-3 py-1.5 bg-white border border-yellow-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-yellow-400 shadow-xs font-medium"
+                  className="w-full sm:w-48 pl-8 pr-3 py-1.5 bg-white border border-yellow-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-yellow-400 shadow-xs font-medium"
                 />
               </div>
 

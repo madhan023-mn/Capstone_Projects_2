@@ -135,7 +135,7 @@ export default function Register() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  placeholder="John Doe"
+                  placeholder="••••••••"
                   className="block w-full pl-10 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-amber-400 text-slate-900"
                 />
               </div>
@@ -155,7 +155,7 @@ export default function Register() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  placeholder="you@example.com"
+                  placeholder="••••••••"
                   className="block w-full pl-10 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-amber-400 text-slate-900"
                 />
               </div>
@@ -174,7 +174,7 @@ export default function Register() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+91 9876543210"
+                  placeholder="••••••••"
                   className="block w-full pl-10 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-amber-400 text-slate-900"
                 />
               </div>
