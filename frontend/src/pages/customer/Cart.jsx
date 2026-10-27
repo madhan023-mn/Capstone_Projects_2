@@ -5,10 +5,12 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useCurrency } from '../../context/CurrencyContext';
 
 export default function Cart() {
   const { cart, updateQuantity, removeFromCart, applyCoupon, loading } = useCart();
   const { isAuthenticated } = useAuth();
+  const { formatPrice, formatSecondaryPrice } = useCurrency();
   const navigate = useNavigate();
 
   const [couponCode, setCouponCode] = useState('');
@@ -142,7 +144,9 @@ export default function Cart() {
                           >
                             {item.product?.title}
                           </Link>
-                          <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Unit: <span className="font-bold text-slate-800">${item.price.toFixed(2)}</span></p>
+                          <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
+                            Unit: <span className="font-bold text-slate-800">{formatPrice(item.price)}</span> <span className="text-[10px] text-slate-400">({formatSecondaryPrice(item.price)})</span>
+                          </p>
 
                           <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center gap-3 sm:gap-4">
                             {/* Quantity Controls */}
@@ -174,8 +178,11 @@ export default function Cart() {
 
                         {/* Item Total */}
                         <div className="text-right shrink-0">
-                          <span className="text-sm sm:text-base font-black text-slate-900">
-                            ${(item.price * item.quantity).toFixed(2)}
+                          <span className="text-sm sm:text-base font-black text-slate-900 block">
+                            {formatPrice(item.price * item.quantity)}
+                          </span>
+                          <span className="text-[10px] font-semibold text-slate-400">
+                            {formatSecondaryPrice(item.price * item.quantity)}
                           </span>
                         </div>
                       </div>
@@ -242,24 +249,24 @@ export default function Cart() {
                 </h3>
 
                 <div className="space-y-2.5 text-xs text-slate-600">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span>Items Subtotal</span>
-                    <span className="font-bold text-slate-900">${subtotal.toFixed(2)}</span>
+                    <span className="font-bold text-slate-900">{formatPrice(subtotal)}</span>
                   </div>
 
                   {discountTotal > 0 && (
-                    <div className="flex justify-between text-emerald-600 font-bold">
+                    <div className="flex justify-between items-center text-emerald-600 font-bold">
                       <span>Coupon Discount ({cart.appliedCoupon?.code})</span>
-                      <span>-${discountTotal.toFixed(2)}</span>
+                      <span>-{formatPrice(discountTotal)}</span>
                     </div>
                   )}
 
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span>Estimated Tax (5%)</span>
-                    <span>${estimatedTax.toFixed(2)}</span>
+                    <span>{formatPrice(estimatedTax)}</span>
                   </div>
 
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span>Shipping & Delivery</span>
                     <span className="text-emerald-600 font-black">FREE</span>
                   </div>
@@ -270,9 +277,14 @@ export default function Cart() {
                     <span className="text-sm font-black text-slate-900">Total Due</span>
                     <p className="text-[10px] text-slate-400">Includes all taxes & merchant settlements</p>
                   </div>
-                  <span className="text-2xl font-black text-slate-900">
-                    ${grandTotal.toFixed(2)}
-                  </span>
+                  <div className="text-right">
+                    <span className="text-2xl font-black text-slate-900 block">
+                      {formatPrice(grandTotal)}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-500">
+                      Approx. {formatSecondaryPrice(grandTotal)}
+                    </span>
+                  </div>
                 </div>
 
                 <button

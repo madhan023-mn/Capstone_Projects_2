@@ -80,7 +80,7 @@ export default function Home() {
             </div>
             <h3 className="text-base sm:text-lg font-black text-slate-900">Coupon: WELCOME10</h3>
             <p className="text-xs text-slate-500 mb-3 font-medium">
-              Save 10% on your first order over $50 at checkout.
+              Save 10% on your first order over ₹4,150 ($50) at checkout.
             </p>
             <div className="p-2 sm:p-2.5 bg-yellow-50/70 rounded-xl border border-yellow-200 flex items-center justify-between text-xs">
               <span className="font-mono text-amber-900 font-black">WELCOME10</span>
@@ -102,7 +102,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3.5">
             {categories.map((cat) => (
               <Link
                 key={cat._id}

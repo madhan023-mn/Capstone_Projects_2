@@ -4,10 +4,12 @@ import { Heart, ShoppingCart, Trash2, Store } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useCart } from '../../context/CartContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import api from '../../api/axios';
 
 export default function Wishlist() {
   const { addToCart } = useCart();
+  const { formatPrice, formatSecondaryPrice } = useCurrency();
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -114,13 +116,16 @@ export default function Wishlist() {
                     {prod.title}
                   </Link>
 
-                  <div className="mt-2 flex items-baseline gap-2">
+                  <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
                     <span className="text-base font-black text-slate-900">
-                      ${(prod.salePrice || prod.price).toFixed(2)}
+                      {formatPrice(prod.salePrice || prod.price)}
+                    </span>
+                    <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/80">
+                      {formatSecondaryPrice(prod.salePrice || prod.price)}
                     </span>
                     {prod.salePrice && (
-                      <span className="text-xs text-slate-400 line-through">
-                        ${prod.price.toFixed(2)}
+                      <span className="text-[10px] text-slate-400 line-through">
+                        {formatPrice(prod.price)}
                       </span>
                     )}
                   </div>

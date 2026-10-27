@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { CurrencyProvider } from './context/CurrencyContext';
 
 // Customer Pages
 import Home from './pages/customer/Home';
@@ -58,8 +59,9 @@ function ProtectedRoute({ children, allowedRoles }) {
 export default function App() {
   return (
     <AuthProvider>
-      <CartProvider>
-        <Routes>
+      <CurrencyProvider>
+        <CartProvider>
+          <Routes>
           {/* Public & Customer Storefront Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Catalog />} />
@@ -222,7 +224,8 @@ export default function App() {
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </CartProvider>
+        </CartProvider>
+      </CurrencyProvider>
     </AuthProvider>
   );
 }

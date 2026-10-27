@@ -2,9 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, ShoppingCart, Store, CheckCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
+  const { formatPrice, formatSecondaryPrice } = useCurrency();
 
   const discountPercentage =
     product.salePrice && product.price > product.salePrice
@@ -95,13 +97,16 @@ export default function ProductCard({ product }) {
         {/* Pricing and Action */}
         <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap">
-              <span className="text-sm sm:text-lg font-black text-slate-900 truncate">
-                ${displayPrice.toFixed(2)}
+            <div className="flex items-baseline gap-1.5 flex-wrap">
+              <span className="text-sm sm:text-base font-black text-slate-900 truncate">
+                {formatPrice(displayPrice)}
+              </span>
+              <span className="text-[10px] sm:text-[11px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/80">
+                {formatSecondaryPrice(displayPrice)}
               </span>
               {discountPercentage > 0 && (
-                <span className="text-[10px] sm:text-xs text-slate-400 line-through">
-                  ${product.price.toFixed(2)}
+                <span className="text-[10px] text-slate-400 line-through">
+                  {formatPrice(product.price)}
                 </span>
               )}
             </div>

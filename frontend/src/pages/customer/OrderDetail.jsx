@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import { useCurrency } from '../../context/CurrencyContext';
 import api from '../../api/axios';
 
 const STATUS_STEPS = ['placed', 'confirmed', 'packed', 'shipped', 'delivered'];
@@ -22,6 +23,7 @@ export default function OrderDetail() {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { formatPrice, formatSecondaryPrice } = useCurrency();
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -218,21 +220,31 @@ export default function OrderDetail() {
                           />
                           <div>
                             <h4 className="text-xs font-black text-slate-900">{it.title}</h4>
-                            <p className="text-[11px] text-slate-500 mt-0.5">Quantity: {it.quantity} × ${it.price.toFixed(2)}</p>
+                            <p className="text-[11px] text-slate-500 mt-0.5">
+                              Quantity: {it.quantity} × {formatPrice(it.price)} <span className="text-[10px] text-slate-400">({formatSecondaryPrice(it.price)})</span>
+                            </p>
                           </div>
                         </div>
 
-                        <span className="text-sm font-black text-slate-900">
-                          ${(it.price * it.quantity).toFixed(2)}
-                        </span>
+                        <div className="text-right">
+                          <span className="text-sm font-black text-slate-900 block">
+                            {formatPrice(it.price * it.quantity)}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-semibold">
+                            {formatSecondaryPrice(it.price * it.quantity)}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>
 
                   {/* Suborder Total */}
-                  <div className="mt-4 pt-4 border-t-2 border-amber-100 flex justify-between text-xs font-black text-slate-800">
+                  <div className="mt-4 pt-4 border-t-2 border-amber-100 flex justify-between items-baseline text-xs font-black text-slate-800">
                     <span>Suborder Subtotal:</span>
-                    <span className="text-slate-950">${suborder.subtotal.toFixed(2)}</span>
+                    <div className="text-right">
+                      <span className="text-slate-950 block">{formatPrice(suborder.subtotal)}</span>
+                      <span className="text-[10px] text-slate-400 font-normal">({formatSecondaryPrice(suborder.subtotal)})</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -259,23 +271,26 @@ export default function OrderDetail() {
             <h3 className="text-xs font-black uppercase tracking-wider text-amber-700 mb-3">
               Payment Breakdown
             </h3>
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <span>Items Total:</span>
-              <span className="font-bold text-slate-900">${order.subtotal?.toFixed(2)}</span>
+              <span className="font-bold text-slate-900">{formatPrice(order.subtotal)}</span>
             </div>
             {order.discountAmount > 0 && (
-              <div className="flex justify-between text-emerald-600 font-bold">
+              <div className="flex justify-between items-center text-emerald-600 font-bold">
                 <span>Discount Saved:</span>
-                <span>-${order.discountAmount?.toFixed(2)}</span>
+                <span>-{formatPrice(order.discountAmount)}</span>
               </div>
             )}
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <span>Taxes (5%):</span>
-              <span>${order.taxAmount?.toFixed(2)}</span>
+              <span>{formatPrice(order.taxAmount)}</span>
             </div>
             <div className="pt-3 border-t-2 border-amber-100 flex justify-between items-baseline text-base font-black text-slate-900">
-              <span>Grand Total Settled:</span>
-              <span>${order.grandTotal?.toFixed(2)}</span>
+              <div>
+                <span>Grand Total Settled:</span>
+                <span className="text-xs text-slate-500 font-normal block">Equivalent: {formatSecondaryPrice(order.grandTotal)}</span>
+              </div>
+              <span>{formatPrice(order.grandTotal)}</span>
             </div>
           </div>
         </div>

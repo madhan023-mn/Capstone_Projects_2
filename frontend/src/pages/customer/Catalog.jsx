@@ -4,11 +4,13 @@ import { Filter, Star, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ProductCard from '../../components/ProductCard';
+import { useCurrency } from '../../context/CurrencyContext';
 import api from '../../api/axios';
 
 export default function Catalog() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { currency } = useCurrency();
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -211,19 +213,19 @@ export default function Catalog() {
             {/* Price Filter */}
             <div>
               <h3 className="text-xs font-black uppercase tracking-wider text-amber-800 mb-3">
-                Price Range
+                Price Range ({currency === 'INR' ? '₹ INR' : '$ USD'})
               </h3>
               <div className="grid grid-cols-2 gap-2">
                 <input
                   type="number"
-                  placeholder="Min $"
+                  placeholder={currency === 'INR' ? 'Min ₹' : 'Min $'}
                   value={currentMinPrice}
                   onChange={(e) => updateParam('minPrice', e.target.value)}
                   className="w-full bg-amber-50/20 border-2 border-amber-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-amber-400"
                 />
                 <input
                   type="number"
-                  placeholder="Max $"
+                  placeholder={currency === 'INR' ? 'Max ₹' : 'Max $'}
                   value={currentMaxPrice}
                   onChange={(e) => updateParam('maxPrice', e.target.value)}
                   className="w-full bg-amber-50/20 border-2 border-amber-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-amber-400"
@@ -361,19 +363,19 @@ export default function Catalog() {
               {/* Price Range */}
               <div>
                 <h3 className="text-xs font-black uppercase tracking-wider text-amber-900 mb-2.5">
-                  Price ($)
+                  Price ({currency === 'INR' ? '₹ INR' : '$ USD'})
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="number"
-                    placeholder="Min $"
+                    placeholder={currency === 'INR' ? 'Min ₹' : 'Min $'}
                     value={currentMinPrice}
                     onChange={(e) => updateParam('minPrice', e.target.value)}
                     className="w-full bg-yellow-50/40 border border-yellow-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-yellow-400"
                   />
                   <input
                     type="number"
-                    placeholder="Max $"
+                    placeholder={currency === 'INR' ? 'Max ₹' : 'Max $'}
                     value={currentMaxPrice}
                     onChange={(e) => updateParam('maxPrice', e.target.value)}
                     className="w-full bg-yellow-50/40 border border-yellow-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-yellow-400"

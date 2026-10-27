@@ -27,7 +27,7 @@ const signToken = (user) => {
 // Helper to sanitize user output and return response with token
 const createSendToken = (user, statusCode, res, message = 'Success') => {
   const token = signToken(user);
-  const userObj = { ...user };
+  const userObj = typeof user.toObject === 'function' ? user.toObject() : { ...user };
   delete userObj.password;
 
   res.status(statusCode).json({
@@ -66,11 +66,16 @@ exports.register = async (req, res, next) => {
     const cleanEmail = String(email).trim().toLowerCase();
 
     if (mongoose.connection.readyState !== 1) {
+      const existingUser = fallbackData.users.find((u) => u.email === cleanEmail);
+      if (existingUser) {
+        return next(new AppError('An account with this email already exists', 400));
+      }
       const newUser = {
         _id: `demo_${Date.now()}`,
         id: `demo_${Date.now()}`,
         name: String(name).trim(),
         email: cleanEmail,
+        password: password,
         role: role === 'vendor' ? 'vendor' : 'customer',
         phone: phone || '',
         status: 'active',
@@ -142,7 +147,7 @@ exports.login = async (req, res, next) => {
       const match = fallbackData.users.find(
         (u) => u.email.trim().toLowerCase() === cleanEmail
       );
-      if (match) {
+      if (match && match.password) {
         const isMatch = match.password === password || (match.password.startsWith('$2') && await bcrypt.compare(password, match.password));
         if (isMatch) {
           return createSendToken(match, 200, res, 'Logged in successfully');
@@ -249,10 +254,18 @@ exports.updateMe = async (req, res, next) => {
     if (req.body.phone) filteredBody.phone = req.body.phone;
     if (req.body.avatar) filteredBody.avatar = req.body.avatar;
 
-    const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
+    let updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
       new: true,
       runValidators: true,
     });
+
+    if (!updatedUser) {
+      const match = fallbackData.users.find((u) => u.id === req.user.id || u._id === req.user.id);
+      if (match) {
+        Object.assign(match, filteredBody);
+        updatedUser = match;
+      }
+    }
 
     res.status(200).json({
       success: true,

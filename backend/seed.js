@@ -14,7 +14,7 @@ const Cart = require('./models/Cart');
 const seedDatabase = async () => {
   try {
     await connectDB();
-    console.log('Connected to SQLite database for expanded seeding...');
+    console.log('Connected to database for expanded seeding...');
 
     // Clear existing collections
     await Promise.all([

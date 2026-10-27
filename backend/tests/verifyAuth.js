@@ -4,12 +4,14 @@ const request = require('supertest');
 const app = require('../server');
 const User = require('../models/User');
 
+const connectDB = require('../config/db');
+
 const runAuthVerification = async () => {
   console.log('🧪 Starting Authentication & Authorization Verification Suite...\n');
 
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('✅ Connected to MongoDB database for verification');
+    await connectDB();
+    console.log('✅ Connected to database for verification');
 
     // Clean up test user if left over
     await User.deleteMany({ email: 'testcustomer@example.com' });
@@ -101,11 +103,15 @@ const runAuthVerification = async () => {
     await User.deleteMany({ email: 'testcustomer@example.com' });
     console.log('\n✨ ALL AUTHENTICATION AND AUTHORIZATION TESTS PASSED WITH 100% SUCCESS! ✨\n');
 
-    await mongoose.connection.close();
+    if (mongoose.connection && mongoose.connection.readyState !== 0) {
+      await mongoose.connection.close();
+    }
     process.exit(0);
   } catch (err) {
     console.error('❌ Test execution error:', err);
-    await mongoose.connection.close();
+    if (mongoose.connection && mongoose.connection.readyState !== 0) {
+      await mongoose.connection.close();
+    }
     process.exit(1);
   }
 };

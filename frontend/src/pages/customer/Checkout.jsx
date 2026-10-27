@@ -4,10 +4,12 @@ import { ShieldCheck, CreditCard, MapPin, CheckCircle, ArrowLeft, Lock } from 'l
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useCart } from '../../context/CartContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import api from '../../api/axios';
 
 export default function Checkout() {
   const { cart, refreshCart } = useCart();
+  const { formatPrice, formatSecondaryPrice } = useCurrency();
   const navigate = useNavigate();
 
   const [address, setAddress] = useState({
@@ -318,40 +320,50 @@ export default function Checkout() {
                     />
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-slate-900 truncate">{it.product?.title}</p>
-                      <p className="text-[11px] text-slate-500">Qty: {it.quantity} × ${it.price.toFixed(2)}</p>
+                      <p className="text-[11px] text-slate-500">
+                        Qty: {it.quantity} × {formatPrice(it.price)} <span className="text-[10px] text-slate-400">({formatSecondaryPrice(it.price)})</span>
+                      </p>
                     </div>
-                    <span className="font-black text-slate-900">
-                      ${(it.price * it.quantity).toFixed(2)}
-                    </span>
+                    <div className="text-right">
+                      <span className="font-black text-slate-900 block">
+                        {formatPrice(it.price * it.quantity)}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-semibold">
+                        {formatSecondaryPrice(it.price * it.quantity)}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
 
               <div className="pt-4 border-t-2 border-amber-100 space-y-2 text-xs text-slate-600">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span>Subtotal</span>
-                  <span className="font-bold text-slate-900">${subtotal.toFixed(2)}</span>
+                  <span className="font-bold text-slate-900">{formatPrice(subtotal)}</span>
                 </div>
                 {discountTotal > 0 && (
-                  <div className="flex justify-between text-emerald-600 font-bold">
+                  <div className="flex justify-between items-center text-emerald-600 font-bold">
                     <span>Discount</span>
-                    <span>-${discountTotal.toFixed(2)}</span>
+                    <span>-{formatPrice(discountTotal)}</span>
                   </div>
                 )}
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span>Taxes (5%)</span>
-                  <span>${estimatedTax.toFixed(2)}</span>
+                  <span>{formatPrice(estimatedTax)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span>Shipping</span>
                   <span className="text-emerald-600 font-black">FREE</span>
                 </div>
               </div>
 
               <div className="pt-4 border-t-2 border-amber-100 flex justify-between items-baseline">
-                <span className="text-sm font-black text-slate-900">Grand Total</span>
+                <div>
+                  <span className="text-sm font-black text-slate-900 block">Grand Total</span>
+                  <span className="text-xs text-slate-500 font-semibold">Equivalent: {formatSecondaryPrice(grandTotal)}</span>
+                </div>
                 <span className="text-2xl font-black text-slate-900">
-                  ${grandTotal.toFixed(2)}
+                  {formatPrice(grandTotal)}
                 </span>
               </div>
 
@@ -360,7 +372,7 @@ export default function Checkout() {
                 disabled={isProcessing}
                 className="w-full py-4 rounded-2xl bg-amber-400 hover:bg-amber-500 active:scale-95 text-slate-950 font-black text-sm transition shadow-lg shadow-amber-400/25 flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {isProcessing ? 'Verifying & Splitting Suborders...' : `Pay $${grandTotal.toFixed(2)} & Place Order`}
+                {isProcessing ? 'Verifying & Splitting Suborders...' : `Pay ${formatPrice(grandTotal)} & Place Order`}
               </button>
             </div>
           </div>

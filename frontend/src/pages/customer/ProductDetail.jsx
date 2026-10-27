@@ -15,6 +15,7 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import api from '../../api/axios';
 
 export default function ProductDetail() {
@@ -22,6 +23,7 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { isAuthenticated, user } = useAuth();
+  const { formatPrice, formatSecondaryPrice } = useCurrency();
 
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -202,14 +204,17 @@ export default function ProductDetail() {
 
               {/* Price block */}
               <div className="mt-5 sm:mt-6 p-4 rounded-xl bg-yellow-50/60 border border-yellow-200">
-                <div className="flex items-baseline gap-3">
+                <div className="flex items-baseline gap-3 flex-wrap">
                   <span className="text-2xl sm:text-3xl font-black text-slate-900">
-                    ${displayPrice.toFixed(2)}
+                    {formatPrice(displayPrice)}
+                  </span>
+                  <span className="text-sm sm:text-base font-bold text-amber-900 bg-amber-100/80 px-2 py-0.5 rounded-lg border border-amber-300">
+                    {formatSecondaryPrice(displayPrice)}
                   </span>
                   {discountPercent > 0 && (
                     <>
                       <span className="text-xs sm:text-sm text-slate-400 line-through">
-                        ${product.price.toFixed(2)}
+                        {formatPrice(product.price)}
                       </span>
                       <span className="bg-rose-100 text-rose-700 text-xs font-black px-2 py-0.5 rounded">
                         Save {discountPercent}%
@@ -217,7 +222,7 @@ export default function ProductDetail() {
                     </>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">Inclusive of all platform taxes & fulfillment fees</p>
+                <p className="text-[11px] text-slate-500 mt-1">Multi-currency prices displayed in both INR (₹) and USD ($)</p>
               </div>
 
               {/* Description */}
@@ -248,10 +253,15 @@ export default function ProductDetail() {
           <div className="md:col-span-2 lg:col-span-3 flex flex-col justify-between">
             <div className="bg-white border border-yellow-300 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4 sm:space-y-5">
               
-              <div className="flex items-baseline justify-between">
-                <span className="text-2xl font-black text-slate-900">
-                  ${(displayPrice * quantity).toFixed(2)}
-                </span>
+              <div className="flex items-baseline justify-between flex-wrap gap-2">
+                <div>
+                  <span className="text-2xl font-black text-slate-900 block">
+                    {formatPrice(displayPrice * quantity)}
+                  </span>
+                  <span className="text-xs font-semibold text-slate-500">
+                    Approx. {formatSecondaryPrice(displayPrice * quantity)}
+                  </span>
+                </div>
                 <span className="text-xs text-emerald-700 font-bold flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                   <CheckCircle className="w-3.5 h-3.5" />
                   Free Delivery

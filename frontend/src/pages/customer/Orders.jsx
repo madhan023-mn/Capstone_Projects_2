@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { Package, ArrowRight, Calendar, CheckCircle, Clock } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import { useCurrency } from '../../context/CurrencyContext';
 import api from '../../api/axios';
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { formatPrice, formatSecondaryPrice } = useCurrency();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -74,8 +76,8 @@ export default function Orders() {
                     </div>
 
                     <div>
-                      <span className="text-slate-400 block uppercase font-black text-[10px]">Total Amount</span>
-                      <span className="font-black text-slate-950">${ord.grandTotal?.toFixed(2)}</span>
+                      <span className="font-black text-slate-950">{formatPrice(ord.grandTotal)}</span>
+                      <span className="text-[10px] text-slate-500 font-semibold block">({formatSecondaryPrice(ord.grandTotal)})</span>
                     </div>
 
                     <div>

@@ -15,10 +15,12 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function Navbar({ onSearchSubmit, categories = [] }) {
   const { user, logout, isAuthenticated, isVendor, isAdmin } = useAuth();
   const { totalItemsCount } = useCart();
+  const { currency, toggleCurrency } = useCurrency();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -220,6 +222,23 @@ export default function Navbar({ onSearchSubmit, categories = [] }) {
               )}
             </div>
 
+            {/* Currency Switcher (INR / USD) */}
+            <button
+              onClick={toggleCurrency}
+              type="button"
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl bg-yellow-50 hover:bg-yellow-100/80 text-slate-800 border border-yellow-300 transition shadow-xs cursor-pointer"
+              title="Click to toggle currency (INR ₹ / USD $)"
+              aria-label="Toggle Currency"
+            >
+              <span className={`text-[11px] font-black px-1.5 py-0.5 rounded transition ${currency === 'INR' ? 'bg-amber-400 text-slate-950 shadow-xs' : 'text-slate-400'}`}>
+                ₹ INR
+              </span>
+              <span className="text-slate-300 text-[10px]">/</span>
+              <span className={`text-[11px] font-black px-1.5 py-0.5 rounded transition ${currency === 'USD' ? 'bg-amber-400 text-slate-950 shadow-xs' : 'text-slate-400'}`}>
+                $ USD
+              </span>
+            </button>
+
             {/* Wishlist Button */}
             <Link
               to="/wishlist"
@@ -387,6 +406,27 @@ export default function Navbar({ onSearchSubmit, categories = [] }) {
                   <ChevronDown className="w-4 h-4 -rotate-90" />
                 </Link>
               )}
+            </div>
+
+            {/* Mobile Currency Selector */}
+            <div className="pt-2 border-t border-yellow-100 flex items-center justify-between p-2.5 rounded-xl bg-yellow-50/70 border border-yellow-200">
+              <span className="text-xs font-bold text-slate-700">Display Currency:</span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => toggleCurrency()}
+                  className={`px-2.5 py-1 text-xs font-black rounded-lg transition ${currency === 'INR' ? 'bg-amber-400 text-slate-950 shadow-xs' : 'bg-white text-slate-600 border border-yellow-300'}`}
+                >
+                  ₹ INR
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleCurrency()}
+                  className={`px-2.5 py-1 text-xs font-black rounded-lg transition ${currency === 'USD' ? 'bg-amber-400 text-slate-950 shadow-xs' : 'bg-white text-slate-600 border border-yellow-300'}`}
+                >
+                  $ USD
+                </button>
+              </div>
             </div>
 
             {/* User Account / Auth Section */}

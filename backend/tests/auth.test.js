@@ -4,17 +4,19 @@ const mongoose = require('mongoose');
 const app = require('../server');
 const User = require('../models/User');
 
+const connectDB = require('../config/db');
+
 beforeAll(async () => {
-  // Ensure DB connection is active
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGO_URI);
-  }
-});
+  await connectDB();
+}, 15000);
 
 afterAll(async () => {
-  // Clean up test user
-  await User.deleteMany({ email: /test.*@example\.com/ });
-  await mongoose.connection.close();
+  try {
+    await User.deleteMany({ email: 'testcustomer@example.com' });
+  } catch (_) {}
+  if (mongoose.connection && mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+  }
 });
 
 describe('Authentication & Authorization Suite', () => {
